@@ -69,14 +69,25 @@ class WSDLCreator
         $this->_classParser->parse();
     }
 
+    private function _generateWSDL()
+    {
+        $xml = new XMLGenerator($this->_class, $this->_namespace, $this->_location);
+        $xml->setWSDLMethods($this->_classParser->getMethods())
+            ->setBindingStyle($this->_bindingStyle)
+            ->generate();
+        return $xml;
+    }
+
+    public function getWSDL()
+    {
+        $xml = $this->_generateWSDL();
+        return $xml->getGeneratedXml();
+    }
+
     public function renderWSDL()
     {
         header("Content-Type: text/xml");
-        $xml = new XMLGenerator($this->_class, $this->_namespace, $this->_location);
-        $xml
-            ->setWSDLMethods($this->_classParser->getMethods())
-            ->setBindingStyle($this->_bindingStyle)
-            ->generate();
+        $xml = $this->_generateWSDL();
         $xml->render();
     }
 

@@ -72,8 +72,10 @@ class XMLGenerator
         $this->_name = $this->extractClassName($name);
         $this->_location = $location;
 
-        $this->_targetNamespace = $this->sanitizeClassName($namespace, $name);
-        $this->_targetNamespaceTypes = $this->_targetNamespace . '/types';
+        if (!isset($this->_targetNamespace)) {
+            $this->_targetNamespace = $this->sanitizeClassName($namespace, $name);
+        }
+        $this->_targetNamespaceTypes = $this->_targetNamespace . (substr($this->_targetNamespace, -1) == '/' ? '' : '/') . 'types';
 
         $this->_DOMDocument = new DOMDocument("1.0", "UTF-8");
         $this->_DOMDocument->formatOutput = true;
@@ -88,7 +90,16 @@ class XMLGenerator
     public function extractClassName($name)
     {
         $reflectedClass = new ReflectionClass($name);
+        $this->_parseNamespace($reflectedClass);
         return $reflectedClass->getShortName();
+    }
+
+    private function _parseNamespace($class)
+    {
+        $docComment = $class->getDocComment();
+        if (preg_match('#@namespace\s+(\S+)#', $docComment, $matches)) {
+            $this->_targetNamespace = $matches[1];
+        }
     }
 
     public function setWSDLMethods($WSDLMethods)
@@ -207,11 +218,8 @@ class XMLGenerator
             $sequenceElement->appendChild($elementPartElement);
         }
 
-        $complex = $parameter->getComplex();
-        if ($complex) {
-            foreach ($complex as $complexElement) {
-                $this->_generateComplexType($complexElement, $schemaElement);
-            }
+        if ($parameter->getComplex()) {
+            $this->_generateComplexType($parameter->getComplex(), $schemaElement);
         }
 
         $complexTypeElement->appendChild($sequenceElement);

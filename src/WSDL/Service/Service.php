@@ -45,7 +45,7 @@ class Service
     private $methods;
     private $location;
 
-    public function __construct($location, $wsdl, $methods)
+    function __construct($location, $wsdl, $methods)
     {
         $this->location = $location;
         $this->wsdl = $wsdl;

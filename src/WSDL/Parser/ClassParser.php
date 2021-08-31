@@ -23,7 +23,6 @@
  */
 namespace WSDL\Parser;
 
-use Ouzo\Utilities\Strings;
 use ReflectionClass;
 use ReflectionMethod;
 
@@ -37,46 +36,46 @@ class ClassParser
     /**
      * @var ReflectionClass
      */
-    private $reflectedClass;
+    private $_reflectedClass;
     /**
      * @var MethodParser[]
      */
-    private $methodDocComments = array();
+    private $_methodDocComments = array();
 
     public function __construct($className)
     {
-        $this->reflectedClass = new ReflectionClass($className);
+        $this->_reflectedClass = new ReflectionClass($className);
     }
 
     public function parse()
     {
-        $this->allPublicMethodDocComment();
+        $this->_getAllPublicMethodDocComment();
     }
 
-    private function allPublicMethodDocComment()
+    private function _getAllPublicMethodDocComment()
     {
-        $reflectionClassMethods = $this->reflectedClass->getMethods();
-        foreach ($reflectionClassMethods as $reflectionMethod) {
-            if ($this->canParseMethod($reflectionMethod)) {
-                $methodName = $reflectionMethod->getName();
-                $methodDocComment = $reflectionMethod->getDocComment();
-                $this->methodDocComments[] = new MethodParser($methodName, $methodDocComment);
+        $reflectionClassMethods = $this->_reflectedClass->getMethods();
+        foreach ($reflectionClassMethods as $method) {
+            if ($this->_checkCanParseMethod($method)) {
+                $methodName = $method->getName();
+                $methodDocComment = $method->getDocComment();
+                $this->_methodDocComments[] = new MethodParser($methodName, $methodDocComment);
             }
         }
+        return $this;
     }
 
     /**
      * @param ReflectionMethod $method
      * @return bool
      */
-    private function canParseMethod(ReflectionMethod $method)
+    private function _checkCanParseMethod(ReflectionMethod $method)
     {
         return
-            Strings::contains($method->getDocComment(), '@WebMethod') &&
             $method->isPublic() &&
             !$method->isConstructor() &&
             !$method->isDestructor() &&
-            !Strings::contains($method->getName(), '__');
+            strpos($method->getName(), '__') === false;
     }
 
     /**
@@ -84,6 +83,6 @@ class ClassParser
      */
     public function getMethods()
     {
-        return $this->methodDocComments;
+        return $this->_methodDocComments;
     }
 }

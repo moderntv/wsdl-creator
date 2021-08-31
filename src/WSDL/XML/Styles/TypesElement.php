@@ -32,7 +32,7 @@ class TypesElement
 {
     private $_name;
     private $_elementAttributes = array();
-    private $_complex = array();
+    private $_complex;
 
     public function setName($name)
     {
@@ -63,7 +63,7 @@ class TypesElement
 
     public function setComplex($complex)
     {
-        $this->_complex[] = $complex;
+        $this->_complex = $complex;
         return $this;
     }
 }

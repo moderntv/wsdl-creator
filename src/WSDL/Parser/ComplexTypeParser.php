@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 namespace WSDL\Parser;
-use Ouzo\Utilities\Strings;
 
 /**
  * ComplexTypeParser
@@ -72,6 +71,6 @@ class ComplexTypeParser
 
     public static function isReflectionType($types)
     {
-        return Strings::contains($types, 'className');
+        return preg_match('#className#', $types);
     }
 }
